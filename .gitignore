@@ -1,4 +1,5 @@
 # created by virtualenv automatically
 
 localtest.py
-.idea
+.idea/
+__pycache__/
