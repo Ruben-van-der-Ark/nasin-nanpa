@@ -9,6 +9,7 @@ def number_to_nasin_nanpa(n: int | float, *, pona: bool = True, ali: bool = Fals
         pona : bool, optional, default=True
             If True, optimizes the representation for readability by grouping into larger units (e.g., hundreds, twenties).
             If False, represents the number with repeated smaller units.
+            IMPORTANT: If n is a float, pona needs to be True. To avoid excessive memory usage. Raises TypeError otherwise.
 
         ali : bool, optional, default=False
             If True, uses 'ali' as the word for 100 (instead of 'ale') in the representation.
@@ -21,18 +22,21 @@ def number_to_nasin_nanpa(n: int | float, *, pona: bool = True, ali: bool = Fals
         str
             The Toki Pona-style representation of the input number.
 
+        Raises:
+        - TypeError: If n is a float and pona is False, to avoid excessive memory usage.
+
         Special Behavior:
+        - 0 gets turned into 'ala'
         - Negative numbers are prefixed with 'weka '.
-        - Decimal numbers are separated by 'ala ' (or '.' if nimisuli=False) and recursively converted.
-        - Numbers over 100 are handled based on the `pona` and `ali` parameters:
-            - When pona=True, hundreds are grouped with a prefix indicating the count.
-            - When pona=False, hundreds are expressed as repeated units.
-        - The representation is truncated when sequences of repeated patterns (e.g., 'ale ', 'ali ') exceed a threshold.
+        - If nimisuli is False, there will not be any spaces in the output (besides after 'weka ', if applicable)
+        - Decimal numbers are separated by 'ala ' (or '.' if nimisuli is False) and recursively converted.
     """
     def transform_float(value):
         try:
             decimal_part = (value - int(value)) * 10**len(str(value).split(".")[1])
             result = int(decimal_part)
+            if not len(str(result)) % 2:
+                result = result*10
             return result
         except IndexError:
             return value
@@ -57,6 +61,9 @@ def number_to_nasin_nanpa(n: int | float, *, pona: bool = True, ali: bool = Fals
         return input_string
 
     nimi_nanpa = ''
+
+    if isinstance(n, float) and not pona:
+        raise TypeError(f'For memory reasons, if n is a float, pona can\'t be false.\n{n = }, {type(n) = }, {pona = }')
 
     if n<0:
         nimi_nanpa += 'weka '
@@ -104,7 +111,6 @@ def number_to_nasin_nanpa(n: int | float, *, pona: bool = True, ali: bool = Fals
     nimi_nanpa = account_for_floating_point_precision_errors(nimi_nanpa, threshold=5)
 
     return nimi_nanpa.rstrip() if nimi_nanpa else 'ala'
-
 
 def nasin_nanpa_to_number(n: str, *, pona: bool = True) -> float:
     """
