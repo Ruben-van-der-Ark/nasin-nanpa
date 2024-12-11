@@ -63,7 +63,8 @@ def number_to_nasin_nanpa(n: int | float, *, pona: bool = True, ali: bool = Fals
     nimi_nanpa = ''
 
     if isinstance(n, float) and not pona:
-        raise TypeError(f'For memory reasons, if n is a float, pona can\'t be false.\n{n = }, {type(n) = }, {pona = }')
+        raise TypeError(f'''Because of memory constraints related to floating point imprecision, \
+if pona is False, n can't be a float.\n{n = }, {type(n) = }, {pona = }''')
 
     if n<0:
         nimi_nanpa += 'weka '
